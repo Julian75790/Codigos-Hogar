@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Códigos Hogar · Entretenimiento Express</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+
+    <!-- ===== PANTALLA DE LOGIN ===== -->
+    <div id="pantalla-login">
+        <div class="login-card">
+            <div class="login-logo">
+                <span class="logo-icon">📺</span>
+            </div>
+            <h1 class="login-titulo">Códigos Hogar</h1>
+            <p class="login-sub">Entretenimiento Express</p>
+            <p class="login-desc">
+                Accede a tu Gmail y encuentra al instante los códigos de tu cuenta Netflix.
+            </p>
+            <div class="plataformas-preview">
+                <span class="plat-badge netflix">Netflix</span>
+            </div>
+            <button id="btn-google" onclick="iniciarSesion()">
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" width="20">
+                Iniciar sesión con Google
+            </button>
+            <p class="login-nota">🔒 Solo lectura · Tus datos no se almacenan</p>
+        </div>
+    </div>
+
+    <!-- ===== PANTALLA PRINCIPAL ===== -->
+    <div id="pantalla-app" class="oculto">
+
+        <!-- NAVBAR -->
+        <nav class="navbar">
+            <div class="nav-brand">
+                <span class="nav-icon">📺</span>
+                <div>
+                    <span class="nav-titulo">Códigos Hogar</span>
+                    <span class="nav-sub">Entretenimiento Express</span>
+                </div>
+            </div>
+            <div class="nav-usuario">
+                <img id="user-foto" src="" alt="" class="user-avatar">
+                <span id="user-nombre"></span>
+                <button class="btn-salir" onclick="cerrarSesion()">Salir</button>
+            </div>
+        </nav>
+
+        <!-- CONTENIDO -->
+        <div class="contenido">
+
+            <div class="filtros-bar">
+                <h2 class="seccion-titulo">Tus códigos de Netflix</h2>
+                <div class="filtros-btns">
+                    <button class="filtro-btn netflix-btn activo" onclick="filtrar('netflix', this)">Netflix</button>
+                </div>
+            </div>
+
+            <div id="estado-carga" class="estado-carga">
+                <div class="spinner"></div>
+                <p>Buscando tus códigos de Netflix...</p>
+            </div>
+
+            <div id="estado-vacio" class="estado-vacio oculto">
+                <span style="font-size:3rem;">📭</span>
+                <p>No se encontraron códigos de Netflix en los últimos 30 días.</p>
+            </div>
+
+            <div id="grid-codigos" class="grid-codigos oculto"></div>
+
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

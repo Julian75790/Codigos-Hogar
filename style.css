@@ -1,0 +1,362 @@
+/* ================================
+   IMPORTS & RESET
+================================ */
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;500;600;700&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family: 'Barlow', sans-serif;
+    background: #0d0d0d;
+    color: #f0f0f0;
+    min-height: 100vh;
+}
+
+.oculto { display: none !important; }
+
+/* ================================
+   PANTALLA LOGIN
+================================ */
+#pantalla-login {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(ellipse at top, #1a1a2e 0%, #0d0d0d 70%);
+    padding: 20px;
+}
+
+.login-card {
+    background: #161616;
+    border: 1px solid #2a2a2a;
+    border-radius: 20px;
+    padding: 48px 40px;
+    max-width: 420px;
+    width: 100%;
+    text-align: center;
+}
+
+.login-logo { font-size: 3.5rem; margin-bottom: 12px; }
+
+.login-titulo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.8rem;
+    letter-spacing: 4px;
+    color: #ffffff;
+    line-height: 1;
+}
+
+.login-sub {
+    font-size: 0.7rem;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    color: #e50914;
+    font-weight: 700;
+    margin-top: 4px;
+    margin-bottom: 20px;
+}
+
+.login-desc {
+    font-size: 0.95rem;
+    color: #888;
+    line-height: 1.6;
+    margin-bottom: 24px;
+}
+
+.plataformas-preview {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: 32px;
+}
+
+.plat-badge {
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding: 4px 12px;
+    border-radius: 20px;
+    letter-spacing: 0.5px;
+}
+
+.netflix { background: #e50914; color: #fff; }
+
+#btn-google {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    width: 100%;
+    padding: 14px 24px;
+    background: #fff;
+    color: #333;
+    border: none;
+    border-radius: 12px;
+    font-family: 'Barlow', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+}
+
+#btn-google:hover  { background: #f0f0f0; transform: scale(1.02); }
+#btn-google:active { transform: scale(0.98); }
+
+.login-nota { margin-top: 16px; font-size: 0.75rem; color: #555; }
+
+/* ================================
+   NAVBAR
+================================ */
+.navbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #111;
+    border-bottom: 3px solid #e50914;
+    padding: 14px 28px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.nav-brand { display: flex; align-items: center; gap: 12px; }
+.nav-icon  { font-size: 1.8rem; }
+
+.nav-titulo {
+    display: block;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.5rem;
+    letter-spacing: 3px;
+    color: #fff;
+    line-height: 1;
+}
+
+.nav-sub {
+    display: block;
+    font-size: 0.55rem;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    color: #e50914;
+    font-weight: 700;
+    margin-top: 2px;
+}
+
+.nav-usuario { display: flex; align-items: center; gap: 10px; }
+
+.user-avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: 2px solid #e50914;
+    object-fit: cover;
+}
+
+#user-nombre {
+    font-size: 0.85rem;
+    color: #ccc;
+    max-width: 160px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.btn-salir {
+    background: transparent;
+    border: 1px solid #444;
+    color: #aaa;
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-family: 'Barlow', sans-serif;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: border-color 0.2s, color 0.2s;
+}
+
+.btn-salir:hover { border-color: #e50914; color: #e50914; }
+
+/* ================================
+   CONTENIDO
+================================ */
+.contenido {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 32px 24px 60px;
+}
+
+/* ================================
+   FILTROS
+================================ */
+.filtros-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 28px;
+}
+
+.seccion-titulo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.6rem;
+    letter-spacing: 2px;
+    color: #fff;
+}
+
+.filtros-btns { display: flex; flex-wrap: wrap; gap: 8px; }
+
+.filtro-btn {
+    padding: 6px 16px;
+    border-radius: 20px;
+    border: 1px solid #333;
+    background: transparent;
+    color: #aaa;
+    font-family: 'Barlow', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.netflix-btn:hover, .netflix-btn.activo { background: #e50914; border-color: #e50914; color: #fff; }
+
+/* ================================
+   ESTADOS
+================================ */
+.estado-carga, .estado-vacio {
+    text-align: center;
+    padding: 80px 20px;
+    color: #555;
+}
+
+.estado-vacio p { margin-top: 12px; font-size: 1rem; }
+
+.spinner {
+    width: 44px;
+    height: 44px;
+    border: 4px solid #222;
+    border-top-color: #e50914;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 16px;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ================================
+   GRID DE CÓDIGOS
+================================ */
+.grid-codigos {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+/* ================================
+   TARJETA DE CÓDIGO
+================================ */
+.codigo-card {
+    background: #161616;
+    border: 1px solid #2a2a2a;
+    border-radius: 16px;
+    overflow: hidden;
+    transition: transform 0.2s, border-color 0.2s;
+}
+
+.codigo-card:hover { transform: translateY(-3px); border-color: #444; }
+
+.card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 18px;
+    border-bottom: 1px solid #222;
+}
+
+.card-plataforma {
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 20px;
+}
+
+.card-fecha { font-size: 0.75rem; color: #555; }
+
+.card-body { padding: 18px; }
+
+.card-asunto {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #ddd;
+    margin-bottom: 14px;
+    line-height: 1.4;
+}
+
+.codigo-box {
+    background: #0d0d0d;
+    border: 1px dashed #333;
+    border-radius: 10px;
+    padding: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.codigo-texto {
+    font-family: 'Courier New', monospace;
+    font-size: 1.3rem;
+    font-weight: 700;
+    letter-spacing: 3px;
+    color: #e50914;
+    word-break: break-all;
+}
+
+.btn-copiar {
+    background: #222;
+    border: 1px solid #333;
+    color: #aaa;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    white-space: nowrap;
+    font-family: 'Barlow', sans-serif;
+    transition: all 0.2s;
+    flex-shrink: 0;
+}
+
+.btn-copiar:hover   { background: #e50914; border-color: #e50914; color: #fff; }
+.btn-copiar.copiado { background: #1db954; border-color: #1db954; color: #fff; }
+
+/* ================================
+   RESPONSIVE
+================================ */
+@media (max-width: 600px) {
+    .navbar    { padding: 12px 16px; }
+    .contenido { padding: 20px 16px 40px; }
+    .filtros-bar { flex-direction: column; align-items: flex-start; }
+    .login-card  { padding: 36px 24px; }
+    #user-nombre { display: none; }
+}
+
+/* BOTON OBTENER CÓDIGO NETFLIX */
+.btn-obtener {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    margin-top: 12px;
+    padding: 12px;
+    background: #e50914;
+    color: #fff;
+    border-radius: 10px;
+    text-decoration: none;
+    font-family: 'Barlow', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: background 0.2s, transform 0.1s;
+}
+
+.btn-obtener:hover  { background: #c0070f; color: #fff; transform: scale(1.02); }
+.btn-obtener:active { transform: scale(0.98); }
