@@ -174,7 +174,7 @@ body {
 
 .btn-salir:hover { border-color: #e50914; color: #e50914; }
 .logo-brand {
-    height: 50px;
+    height: 30px;
     width: auto;
     object-fit: contain;
     margin-left: 12px;
