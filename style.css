@@ -173,6 +173,16 @@ body {
 }
 
 .btn-salir:hover { border-color: #e50914; color: #e50914; }
+.logo-brand {
+    height: 50px;
+    width: auto;
+    object-fit: contain;
+    margin-left: 12px;
+    opacity: 0.9;
+    transition: opacity 0.2s;
+}
+
+.logo-brand:hover { opacity: 1; }
 
 /* ================================
    CONTENIDO
