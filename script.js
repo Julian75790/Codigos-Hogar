@@ -1,314 +1,209 @@
-// ================================================
-// CONFIGURACIÓN — Reemplaza con tu Client ID
-// ================================================
-const CLIENT_ID = '956724651079-44e90vpseqdlleg3u0o6kl0rp3knr13n.apps.googleusercontent.com';
-const SCOPES = 'https://www.googleapis.com/auth/gmail.readonly';
+// ============================================================
+// CONFIGURACIÓN — Pega aquí la URL de tu Apps Script
+// (La obtienes al hacer Deploy > Web App en Google Apps Script)
+// ============================================================
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzotS5zM6hXZpL_UV1VVFfQlZdU0IJkaBZB-yP2BeiP1wn_jhSA-tY6zNZJXaJPAkkZ/exec';
 
-const PLATAFORMAS = {
-    netflix: {
-        nombre: 'Netflix',
-        dominios: ['netflix.com', 'account.netflix.com'],
-        clase: 'netflix',
-        filtro: 'netflix'
+// ============================================================
+// BUSCAR — Se ejecuta al hacer clic en el botón o presionar Enter
+// ============================================================
+async function buscar() {
+    const input  = document.getElementById('input-correo');
+    const correo = input.value.trim().toLowerCase();
+
+    // Validación básica del correo
+    if (!correo) {
+        input.focus();
+        input.classList.add('shake');
+        setTimeout(() => input.classList.remove('shake'), 400);
+        return;
     }
-};
 
-let tokenAcceso = null;
-let todosLosCodigos = [];
+    if (!correo.includes('@')) {
+        mostrarError('Por favor ingresa un correo válido.');
+        return;
+    }
 
-// ================================================
-// INICIAR SESIÓN
-// ================================================
-function iniciarSesion() {
-    const client = google.accounts.oauth2.initTokenClient({
-        client_id: CLIENT_ID,
-        scope: SCOPES,
-        callback: async (respuesta) => {
-            if (respuesta.error) { alert('Error al iniciar sesión: ' + respuesta.error); return; }
-            tokenAcceso = respuesta.access_token;
-            await cargarPerfil();
-            mostrarApp();
-            await buscarCodigos();
-        }
-    });
-    client.requestAccessToken();
-}
-
-// ================================================
-// PERFIL
-// ================================================
-async function cargarPerfil() {
-    const res = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
-        headers: { Authorization: `Bearer ${tokenAcceso}` }
-    });
-    const datos = await res.json();
-    document.getElementById('user-nombre').textContent = datos.name || datos.email;
-    if (datos.picture) document.getElementById('user-foto').src = datos.picture;
-}
-
-// ================================================
-// MOSTRAR APP
-// ================================================
-function mostrarApp() {
-    document.getElementById('pantalla-login').classList.add('oculto');
-    document.getElementById('pantalla-app').classList.remove('oculto');
-}
-
-// ================================================
-// CERRAR SESIÓN
-// ================================================
-function cerrarSesion() {
-    google.accounts.oauth2.revoke(tokenAcceso, () => {
-        tokenAcceso = null;
-        todosLosCodigos = [];
-        document.getElementById('pantalla-app').classList.add('oculto');
-        document.getElementById('pantalla-login').classList.remove('oculto');
-        document.getElementById('grid-codigos').innerHTML = '';
-    });
-}
-
-// ================================================
-// BUSCAR CORREOS DE NETFLIX — Solo código de acceso temporal
-// ================================================
-async function buscarCodigos() {
-    mostrarCarga(true);
-    todosLosCodigos = [];
-
-    const query = 'from:info@account.netflix.com subject:"código de acceso temporal" newer_than:30d';
+    setBuscando(true);
+    ocultarEstados();
 
     try {
-        const ids = await obtenerIdsCorreos(query, 20);
-        for (const id of ids) {
-            const correo = await obtenerCorreo(id);
-            if (correo) todosLosCodigos.push(correo);
+        const url = `${APPS_SCRIPT_URL}?email=${encodeURIComponent(correo)}`;
+        const res  = await fetch(url);
+
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+        const datos = await res.json();
+
+        if (datos.error) {
+            mostrarError(datos.error);
+            return;
         }
-        todosLosCodigos.sort((a, b) => b.fecha - a.fecha);
-        mostrarCarga(false);
-        renderizarCodigos(todosLosCodigos);
+
+        renderizarCodigos(datos.codigos || [], correo);
+
     } catch (err) {
         console.error('Error:', err);
-        mostrarCarga(false);
-        mostrarVacio(true);
+        mostrarError('No se pudo conectar. Verifica tu conexión e intenta de nuevo.');
+    } finally {
+        setBuscando(false);
     }
 }
 
-// ================================================
-// OBTENER IDs
-// ================================================
-async function obtenerIdsCorreos(query, max = 20) {
-    const url = `https://www.googleapis.com/gmail/v1/users/me/messages?q=${encodeURIComponent(query)}&maxResults=${max}`;
-    const res = await fetch(url, { headers: { Authorization: `Bearer ${tokenAcceso}` } });
-    const datos = await res.json();
-    return (datos.messages || []).map(m => m.id);
-}
-
-// ================================================
-// OBTENER UN CORREO — Solo "código de acceso temporal"
-// ================================================
-async function obtenerCorreo(id) {
-    const url = `https://www.googleapis.com/gmail/v1/users/me/messages/${id}?format=full`;
-    const res = await fetch(url, { headers: { Authorization: `Bearer ${tokenAcceso}` } });
-    const datos = await res.json();
-
-    const headers    = datos.payload?.headers || [];
-    const asunto     = headers.find(h => h.name === 'Subject')?.value || '';
-    const de         = headers.find(h => h.name === 'From')?.value || '';
-    const fechaMs    = parseInt(datos.internalDate);
-    const plataforma = detectarPlataforma(de);
-
-    if (!plataforma) return null;
-
-    // Filtro estricto — solo correos de código de acceso temporal
-    const asuntoLower = asunto.toLowerCase();
-    if (!asuntoLower.includes('código de acceso temporal') &&
-        !asuntoLower.includes('codigo de acceso temporal')) {
-        return null;
-    }
-
-    const cuerpoHTML  = extraerCuerpoHTML(datos.payload);
-    const cuerpoTexto = extraerCuerpo(datos.payload);
-    const enlace      = extraerEnlaceNetflix(cuerpoHTML);
-    const codigo      = extraerCodigo(cuerpoTexto, asunto);
-
-    if (!enlace && !codigo) return null;
-
-    return {
-        id,
-        asunto,
-        de,
-        plataforma,
-        codigo: codigo || null,
-        enlace: enlace || null,
-        fecha: fechaMs,
-        fechaTexto: formatearFecha(fechaMs)
-    };
-}
-
-// ================================================
-// DETECTAR PLATAFORMA
-// ================================================
-function detectarPlataforma(remitente) {
-    const rem = remitente.toLowerCase();
-    for (const [clave, datos] of Object.entries(PLATAFORMAS)) {
-        if (datos.dominios.some(d => rem.includes(d))) return { clave, ...datos };
-    }
-    if (rem.includes('netflix')) return PLATAFORMAS.netflix;
-    return null;
-}
-
-// ================================================
-// EXTRAER CUERPO HTML
-// ================================================
-function extraerCuerpoHTML(payload) {
-    let html = '';
-    function recorrer(parte) {
-        if (parte.mimeType === 'text/html' && parte.body?.data) {
-            html += atob(parte.body.data.replace(/-/g, '+').replace(/_/g, '/'));
-        }
-        if (parte.parts) parte.parts.forEach(recorrer);
-    }
-    recorrer(payload);
-    return html;
-}
-
-// ================================================
-// EXTRAER CUERPO TEXTO PLANO
-// ================================================
-function extraerCuerpo(payload) {
-    let texto = '';
-    function recorrer(parte) {
-        if (parte.body?.data) {
-            texto += atob(parte.body.data.replace(/-/g, '+').replace(/_/g, '/'));
-        }
-        if (parte.parts) parte.parts.forEach(recorrer);
-    }
-    recorrer(payload);
-    return texto;
-}
-
-// ================================================
-// EXTRAER ENLACE DE NETFLIX
-// ================================================
-function extraerEnlaceNetflix(html) {
-    if (!html) return null;
-    const patrones = [
-        /href="(https:\/\/www\.netflix\.com\/account\/travel\/verify[^"]+)"/i,
-        /href="(https:\/\/www\.netflix\.com\/[^"]*temporar[^"]+)"/i,
-        /href="(https:\/\/www\.netflix\.com\/[^"]*code[^"]+)"/i,
-        /href="(https:\/\/www\.netflix\.com\/[^"]*acceso[^"]+)"/i,
-        /href="(https:\/\/www\.netflix\.com\/[^"]{20,})"/i
-    ];
-    for (const patron of patrones) {
-        const match = html.match(patron);
-        if (match) return match[1];
-    }
-    return null;
-}
-
-// ================================================
-// EXTRAER CÓDIGO NUMÉRICO
-// ================================================
-function extraerCodigo(cuerpo, asunto) {
-    const texto = (cuerpo + ' ' + asunto).replace(/<[^>]+>/g, ' ');
-    const patrones = [
-        /\b(\d{4,8})\b(?=\s*(?:es tu|is your|código|code|PIN|de verificación|de acceso|temporal))/i,
-        /(?:código|code|PIN|clave|acceso temporal)[:\s]+([A-Z0-9]{4,10})/i,
-        /\b([A-Z0-9]{4,8}-[A-Z0-9]{4,8})\b/,
-        /\b(\d{6,8})\b/
-    ];
-    for (const patron of patrones) {
-        const match = texto.match(patron);
-        if (match) return match[1].toUpperCase();
-    }
-    return null;
-}
-
-// ================================================
-// FORMATEAR FECHA
-// ================================================
-function formatearFecha(ms) {
-    return new Date(ms).toLocaleDateString('es-CO', {
-        day: '2-digit', month: 'short', year: 'numeric',
-        hour: '2-digit', minute: '2-digit'
-    });
-}
-
-// ================================================
-// FILTRAR
-// ================================================
-function filtrar(plataforma, btn) {
-    document.querySelectorAll('.filtro-btn').forEach(b => b.classList.remove('activo'));
-    btn.classList.add('activo');
-    const filtrados = plataforma === 'todos'
-        ? todosLosCodigos
-        : todosLosCodigos.filter(c => c.plataforma.filtro === plataforma);
-    renderizarCodigos(filtrados);
-}
-
-// ================================================
-// RENDERIZAR TARJETAS
-// ================================================
-function renderizarCodigos(codigos) {
+// ============================================================
+// RENDERIZAR TARJETAS DE CÓDIGOS
+// ============================================================
+function renderizarCodigos(codigos, correo) {
     const grid = document.getElementById('grid-codigos');
     grid.innerHTML = '';
 
-    if (codigos.length === 0) { mostrarVacio(true); return; }
-    mostrarVacio(false);
-    grid.classList.remove('oculto');
+    // Scroll suave a resultados
+    document.getElementById('zona-resultados').scrollIntoView({ behavior: 'smooth' });
 
-    codigos.forEach(item => {
+    if (codigos.length === 0) {
+        mostrarVacio();
+        return;
+    }
+
+    // Encabezado de resultados
+    const encabezado = document.createElement('div');
+    encabezado.className = 'resultados-encabezado';
+    encabezado.innerHTML = `
+        <h2 class="resultados-titulo">
+            Códigos para <span class="correo-highlight">${correo}</span>
+        </h2>
+        <span class="resultados-count">${codigos.length} código${codigos.length > 1 ? 's' : ''} encontrado${codigos.length > 1 ? 's' : ''}</span>
+    `;
+    grid.appendChild(encabezado);
+
+    // Tarjetas
+    const tarjetasWrap = document.createElement('div');
+    tarjetasWrap.className = 'tarjetas-wrap';
+
+    codigos.forEach((item, i) => {
         const card = document.createElement('div');
         card.className = 'codigo-card';
+        card.style.animationDelay = `${i * 80}ms`;
 
         let accionHTML = '';
+
         if (item.codigo) {
             accionHTML += `
                 <div class="codigo-box">
+                    <div class="codigo-label">Tu código</div>
                     <span class="codigo-texto">${item.codigo}</span>
-                    <button class="btn-copiar" onclick="copiarCodigo(this, '${item.codigo}')">Copiar</button>
+                    <button class="btn-copiar" onclick="copiarCodigo(this, '${item.codigo}')">
+                        <span class="copiar-icono">📋</span> Copiar
+                    </button>
                 </div>`;
         }
+
         if (item.enlace) {
             accionHTML += `
-                <a href="${item.enlace}" target="_blank" class="btn-obtener">
+                <a href="${item.enlace}" target="_blank" rel="noopener" class="btn-obtener">
                     ▶ Obtener código en Netflix
                 </a>`;
         }
 
         card.innerHTML = `
             <div class="card-header">
-                <span class="card-plataforma plat-badge ${item.plataforma.clase}">${item.plataforma.nombre}</span>
-                <span class="card-fecha">${item.fechaTexto}</span>
+                <span class="plat-badge netflix">Netflix</span>
+                <span class="card-fecha">🕐 ${item.fechaTexto}</span>
             </div>
             <div class="card-body">
                 <p class="card-asunto">${item.asunto}</p>
                 ${accionHTML}
             </div>`;
-        grid.appendChild(card);
+
+        tarjetasWrap.appendChild(card);
     });
+
+    grid.appendChild(tarjetasWrap);
+    grid.classList.remove('oculto');
 }
 
-// ================================================
-// COPIAR CÓDIGO
-// ================================================
+// ============================================================
+// COPIAR CÓDIGO AL PORTAPAPELES
+// ============================================================
 function copiarCodigo(btn, codigo) {
     navigator.clipboard.writeText(codigo).then(() => {
-        btn.textContent = '✔ Copiado';
+        btn.innerHTML = '<span class="copiar-icono">✔</span> Copiado';
         btn.classList.add('copiado');
-        setTimeout(() => { btn.textContent = 'Copiar'; btn.classList.remove('copiado'); }, 2000);
+        setTimeout(() => {
+            btn.innerHTML = '<span class="copiar-icono">📋</span> Copiar';
+            btn.classList.remove('copiado');
+        }, 2500);
+    }).catch(() => {
+        // Fallback para navegadores que no soportan clipboard API
+        const el = document.createElement('textarea');
+        el.value = codigo;
+        document.body.appendChild(el);
+        el.select();
+        document.execCommand('copy');
+        document.body.removeChild(el);
+        btn.innerHTML = '✔ Copiado';
+        btn.classList.add('copiado');
+        setTimeout(() => {
+            btn.innerHTML = '<span class="copiar-icono">📋</span> Copiar';
+            btn.classList.remove('copiado');
+        }, 2500);
     });
 }
 
-// ================================================
-// HELPERS UI
-// ================================================
-function mostrarCarga(visible) {
-    document.getElementById('estado-carga').classList.toggle('oculto', !visible);
-    document.getElementById('grid-codigos').classList.toggle('oculto', visible);
-    document.getElementById('estado-vacio').classList.add('oculto');
+// ============================================================
+// LIMPIAR BÚSQUEDA
+// ============================================================
+function limpiar() {
+    const input = document.getElementById('input-correo');
+    input.value = '';
+    input.focus();
+    ocultarEstados();
+    document.getElementById('btn-limpiar').classList.add('oculto');
 }
 
-function mostrarVacio(visible) {
-    document.getElementById('estado-vacio').classList.toggle('oculto', !visible);
-    document.getElementById('grid-codigos').classList.toggle('oculto', visible);
+// ============================================================
+// HELPERS UI
+// ============================================================
+function setBuscando(activo) {
+    const btn    = document.getElementById('btn-buscar');
+    const texto  = document.getElementById('btn-texto');
+    const spin   = document.getElementById('btn-spinner');
+    const limpiar = document.getElementById('btn-limpiar');
+    const input  = document.getElementById('input-correo');
+
+    btn.disabled   = activo;
+    input.disabled = activo;
+    texto.classList.toggle('oculto', activo);
+    spin.classList.toggle('oculto', !activo);
+
+    if (!activo && input.value.trim()) {
+        limpiar.classList.remove('oculto');
+    }
 }
+
+function ocultarEstados() {
+    document.getElementById('estado-error').classList.add('oculto');
+    document.getElementById('estado-vacio').classList.add('oculto');
+    document.getElementById('grid-codigos').classList.add('oculto');
+    document.getElementById('grid-codigos').innerHTML = '';
+}
+
+function mostrarError(msg) {
+    document.getElementById('error-mensaje').textContent = msg;
+    document.getElementById('estado-error').classList.remove('oculto');
+    document.getElementById('zona-resultados').scrollIntoView({ behavior: 'smooth' });
+}
+
+function mostrarVacio() {
+    document.getElementById('estado-vacio').classList.remove('oculto');
+    document.getElementById('zona-resultados').scrollIntoView({ behavior: 'smooth' });
+}
+
+// Mostrar/ocultar botón limpiar mientras se escribe
+document.addEventListener('DOMContentLoaded', () => {
+    const input   = document.getElementById('input-correo');
+    const btnLimp = document.getElementById('btn-limpiar');
+    input.addEventListener('input', () => {
+        btnLimp.classList.toggle('oculto', !input.value.trim());
+    });
+});
