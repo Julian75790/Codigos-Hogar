@@ -5,73 +5,71 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Códigos Hogar · Entretenimiento Express</title>
     <link rel="stylesheet" href="style.css">
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
 
-    <!-- ===== PANTALLA DE LOGIN ===== -->
-    <div id="pantalla-login">
-        <div class="login-card">
-            <div class="login-logo">
-                <span class="logo-icon">📺</span>
-            </div>
-            <h1 class="login-titulo">Códigos Hogar</h1>
-            <p class="login-sub">Entretenimiento Express</p>
-            <p class="login-desc">
-                Accede a tu Gmail y encuentra al instante los códigos de tu cuenta Netflix.
-            </p>
-            <div class="plataformas-preview">
-                <span class="plat-badge netflix">Netflix</span>
-            </div>
-            <button id="btn-google" onclick="iniciarSesion()">
-                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" width="20">
-                Iniciar sesión con Google
-            </button>
-            <p class="login-nota">🔒 Solo lectura · Tus datos no se almacenan</p>
-        </div>
-    </div>
-
-    <!-- ===== PANTALLA PRINCIPAL ===== -->
-    <div id="pantalla-app" class="oculto">
-
-        <!-- NAVBAR -->
-        <nav class="navbar">
-            <div class="nav-brand">
-                <span class="nav-icon">📺</span>
+    <!-- ===== HERO / BÚSQUEDA ===== -->
+    <header class="hero">
+        <div class="hero-inner">
+            <div class="brand">
+                <span class="brand-icon">📺</span>
                 <div>
-                    <span class="nav-titulo">Códigos Hogar</span>
-                    <span class="nav-sub">Entretenimiento Express</span>
-                </div>
-      <div class="nav-usuario">
-    <img id="user-foto" src="" alt="" class="user-avatar">
-    <span id="user-nombre"></span>
-    <button class="btn-salir" onclick="cerrarSesion()">Salir</button>
-</div>
-     </nav>
-        <!-- CONTENIDO -->
-        <div class="contenido">
-
-            <div class="filtros-bar">
-                <h2 class="seccion-titulo">Tus códigos de Netflix</h2>
-                <div class="filtros-btns">
-                    <button class="filtro-btn netflix-btn activo" onclick="filtrar('netflix', this)">Netflix</button>
+                    <span class="brand-titulo">Códigos Hogar</span>
+                    <span class="brand-sub">Entretenimiento Express</span>
                 </div>
             </div>
 
-            <div id="estado-carga" class="estado-carga">
-                <div class="spinner"></div>
-                <p>Buscando tus códigos de Netflix...</p>
+            <div class="busqueda-wrap">
+                <h1 class="busqueda-titulo">¿Cuál es tu correo de Netflix?</h1>
+                <p class="busqueda-desc">Ingresa el correo que te asignamos y te mostramos tu código al instante.</p>
+
+                <div class="busqueda-form">
+                    <div class="input-wrap">
+                        <span class="input-icono">✉️</span>
+                        <input
+                            type="email"
+                            id="input-correo"
+                            placeholder="expresnetflix+tucorreo@gmail.com"
+                            autocomplete="off"
+                            autocapitalize="none"
+                            spellcheck="false"
+                            onkeydown="if(event.key==='Enter') buscar()"
+                        >
+                        <button class="btn-limpiar oculto" id="btn-limpiar" onclick="limpiar()">✕</button>
+                    </div>
+                    <button class="btn-buscar" id="btn-buscar" onclick="buscar()">
+                        <span id="btn-texto">Buscar código</span>
+                        <span id="btn-spinner" class="btn-spinner oculto"></span>
+                    </button>
+                </div>
+
+                <p class="busqueda-nota">🔒 Solo puedes ver los códigos de tu correo asignado</p>
             </div>
-
-            <div id="estado-vacio" class="estado-vacio oculto">
-                <span style="font-size:3rem;">📭</span>
-                <p>No se encontraron códigos de Netflix en los últimos 30 días.</p>
-            </div>
-
-            <div id="grid-codigos" class="grid-codigos oculto"></div>
-
         </div>
-    </div>
+    </header>
+
+    <!-- ===== RESULTADOS ===== -->
+    <main class="resultados" id="zona-resultados">
+
+        <div id="estado-error" class="estado oculto">
+            <span class="estado-icono">⚠️</span>
+            <p id="error-mensaje">Ocurrió un error.</p>
+            <button class="btn-retry" onclick="buscar()">Reintentar</button>
+        </div>
+
+        <div id="estado-vacio" class="estado oculto">
+            <span class="estado-icono">📭</span>
+            <p>No encontramos códigos de Netflix<br>para ese correo en los últimos 30 días.</p>
+            <p class="estado-sub">Si acabas de solicitar el código, espera unos minutos y vuelve a intentarlo.</p>
+        </div>
+
+        <div id="grid-codigos" class="grid-codigos oculto"></div>
+
+    </main>
+
+    <footer class="footer">
+        <p>Códigos Hogar &copy; 2025 · Solo lectura · Tus datos no se almacenan</p>
+    </footer>
 
     <script src="script.js"></script>
 </body>
