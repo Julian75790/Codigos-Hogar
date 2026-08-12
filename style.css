@@ -391,6 +391,55 @@ body {
 .btn-obtener:active { transform: scale(0.99); }
 
 /* ================================
+   BADGE Y CAJA HOGAR CON NETFLIX
+================================ */
+.hogar-badge {
+    background: #1a3a5c;
+    color: #5bb8ff;
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 20px;
+    letter-spacing: 0.5px;
+}
+
+.hogar-box {
+    background: #0d1a2a;
+    border: 1px solid #1a3a5c;
+    border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.hogar-desc {
+    font-size: 0.88rem;
+    color: #8ab4d4;
+    line-height: 1.5;
+}
+
+.btn-hogar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 14px;
+    background: #e50914;
+    color: #fff;
+    border-radius: 12px;
+    text-decoration: none;
+    font-family: 'Barlow', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    transition: background 0.2s, transform 0.1s;
+}
+
+.btn-hogar:hover  { background: #c0070f; transform: scale(1.01); }
+.btn-hogar:active { transform: scale(0.99); }
+
+/* ================================
    FOOTER
 ================================ */
 .footer {
