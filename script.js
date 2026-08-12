@@ -2,7 +2,7 @@
 // CONFIGURACIÓN — Pega aquí la URL de tu Apps Script
 // (La obtienes al hacer Deploy > Web App en Google Apps Script)
 // ============================================================
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzotS5zM6hXZpL_UV1VVFfQlZdU0IJkaBZB-yP2BeiP1wn_jhSA-tY6zNZJXaJPAkkZ/exec';
+constante URL DEL SCRIPT DE LA APLICACIÓN = 'https://script.google.com/macros/s/AKfycbzotS5zM6hXZpL_UV1VVFfQlZdU0IJkaBZB-yP2BeiP1wn_jhSA-tY6zNZJXaJPAkkZ/exec';
 
 // ============================================================
 // BUSCAR — Se ejecuta al hacer clic en el botón o presionar Enter
@@ -86,28 +86,42 @@ function renderizarCodigos(codigos, correo) {
         card.style.animationDelay = `${i * 80}ms`;
 
         let accionHTML = '';
+        let badgeExtra = '';
 
-        if (item.codigo) {
-            accionHTML += `
-                <div class="codigo-box">
-                    <div class="codigo-label">Tu código</div>
-                    <span class="codigo-texto">${item.codigo}</span>
-                    <button class="btn-copiar" onclick="copiarCodigo(this, '${item.codigo}')">
-                        <span class="copiar-icono">📋</span> Copiar
-                    </button>
+        if (item.tipo === 'hogar') {
+            // Tarjeta tipo: Actualizar Hogar con Netflix
+            badgeExtra = `<span class="plat-badge hogar-badge">🏠 Hogar Netflix</span>`;
+            accionHTML = `
+                <div class="hogar-box">
+                    <p class="hogar-desc">Netflix solicita confirmar la actualización de tu Hogar. Presiona el botón para aprobarla.</p>
+                    <a href="${item.enlace}" target="_blank" rel="noopener" class="btn-hogar">
+                        ✅ Sí, la envié yo
+                    </a>
                 </div>`;
-        }
-
-        if (item.enlace) {
-            accionHTML += `
-                <a href="${item.enlace}" target="_blank" rel="noopener" class="btn-obtener">
-                    ▶ Obtener código en Netflix
-                </a>`;
+        } else {
+            // Tarjeta tipo: Código de acceso temporal
+            if (item.codigo) {
+                accionHTML += `
+                    <div class="codigo-box">
+                        <div class="codigo-label">Tu código</div>
+                        <span class="codigo-texto">${item.codigo}</span>
+                        <button class="btn-copiar" onclick="copiarCodigo(this, '${item.codigo}')">
+                            <span class="copiar-icono">📋</span> Copiar
+                        </button>
+                    </div>`;
+            }
+            if (item.enlace) {
+                accionHTML += `
+                    <a href="${item.enlace}" target="_blank" rel="noopener" class="btn-obtener">
+                        ▶ Obtener código en Netflix
+                    </a>`;
+            }
         }
 
         card.innerHTML = `
             <div class="card-header">
                 <span class="plat-badge netflix">Netflix</span>
+                ${badgeExtra}
                 <span class="card-fecha">🕐 ${item.fechaTexto}</span>
             </div>
             <div class="card-body">
