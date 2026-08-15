@@ -2,7 +2,7 @@
 // CONFIGURACIÓN — Pega aquí la URL de tu Apps Script
 // (La obtienes al hacer Deploy > Web App en Google Apps Script)
 // ============================================================
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw_09Fts5o7R1Nc-g0gjV2XLO_m90lRRPwJnj7AzkgDA_nE6y_gnz_ygQVmH8Z_CKaJ/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzV4P5M0ykpywEF4GVQOhLkRnH5vEWNg_VGR5pPw2DVRVj7KqNyGMYGo5oGVTywZhx1/exec';
 
 // ============================================================
 // BUSCAR — Se ejecuta al hacer clic en el botón o presionar Enter
